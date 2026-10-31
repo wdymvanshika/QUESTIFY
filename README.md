@@ -1,36 +1,28 @@
-# 🛸 QUESTIFY — Gamified Productivity Platform
+# QUESTIFY — Gamified Productivity Platform
 
 > **"YOUR CHORES. YOUR GAME. YOUR VICTORY."**  
 > Turn boring digital tasks into exciting missions. Play, progress and get things done.
 
 QUESTIFY transforms everyday digital clutter (disorganized folders, overflowing email inboxes) into playable 60 FPS browser games while safely completing the actual real-world tasks on your system.
 
-Created with passion by **VANSHIKA** for the hackathon.
+Created by **VANSHIKA**.
 
----
+## Design
 
-## 🌟 What's New: Premium Redesign
-
-Inspired by modern, bright, light-themed gaming startups and Apple-style product presentation:
-- **Bright, Glossy White & Pearl Visual Theme:** Light background with soft glassmorphic surfaces, subtle gradients, and realistic depth.
-- **Dark Arcade Arenas:** The games themselves run inside dark arcade viewports for optimal visual contrast and retro game feel.
-- **Hero Section:** Animated 3D-inspired game visual, floating file elements, live statistics, and immediate call-to-actions.
+The interface uses a restrained monochrome system with matte dark surfaces, silver highlights, a responsive dashboard, and a compact mobile navigation menu. The games run in dedicated dark viewports.
 - **User Accounts & Authentication:** Secure email authentication via Supabase (Magic Links / OTP) or instant Guest Mode.
-- **Creator Credits Section:** Dedicated "Crafted with Passion" card highlighting the creator, easily customizable in one place.
 - **Zero Build Tools Required:** Pure **HTML5**, **CSS3**, and **Vanilla JavaScript** (ES6+). No Node.js, no Python, no npm!
 
----
+## Two Missions
 
-## 🎮 Two Epic Missions. One Platform.
-
-### 🏃 Mission 01: FILE RUNNER
+### Mission 01: FILE RUNNER
 - **Gameplay:** 60 FPS courier runner. Jump (`Space` / `↑` / `W`) and crouch (`↓` / `S`) over spires and under overhead lasers.
 - **Real File Organizing:** Uses the native browser **File System Access API** (in Chrome / Edge) to scan any disorganized folder (e.g., Downloads).
 - **Categorization:** Automatically sorts files into `Images`, `Documents`, `Videos`, `Audio`, `Archives`, or `Others`.
 - **Zero Data Loss:** Files are safely moved with automatic duplicate renaming (`file (1).ext`) — no files are ever deleted or overwritten.
 - **Simulation Mode:** Includes instant simulation mode with sample files for quick testing.
 
-### 👾 Mission 02: INBOX INVADERS
+### Mission 02: INBOX INVADERS
 - **Gameplay:** 60 FPS retro space defense shooter. Move with Arrow keys or `A/D`, fire lasers with `Spacebar`.
 - **Enemy Waves:** 4 intense waves featuring Promotions, Spam torpedoes, Newsletter cruisers, Social ping scouts, and the giant **SPAM BOT MATRIX** boss.
 - **VIP Email Protection:** Important emails are shielded VIP cargo — protect them and avoid shooting them for massive score bonuses!
@@ -39,7 +31,7 @@ Inspired by modern, bright, light-themed gaming startups and Apple-style product
 
 ---
 
-## 🔒 Authentication & Account Progression
+## Authentication & Account Progression
 
 QUESTIFY supports two flexible authentication modes:
 
@@ -69,18 +61,16 @@ QUESTIFY supports two flexible authentication modes:
 
 ---
 
-## ✏️ Customizing the Creator Name
+## Customizing the Creator Name
 
 The creator name is defined in one documented place in `index.html`:
 ```html
-<!-- Line ~367 in index.html -->
+<!-- Creator name in index.html -->
 <span class="creator-name" id="creatorName">VANSHIKA</span>
 ```
-Change `VANSHIKA` to any name and it will update the credits card and contact information.
+Change `VANSHIKA` to update the creator section.
 
----
-
-## 🚀 Running and Testing Locally
+## Running Locally
 
 1. Open your QUESTIFY project directory in Google Chrome:
    ```

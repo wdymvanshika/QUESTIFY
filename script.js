@@ -1686,6 +1686,9 @@
       };
 
       // Header Elements
+      this.appHeader = document.getElementById('appHeader');
+      this.siteNavigation = document.getElementById('siteNavigation');
+      this.mobileNavToggle = document.getElementById('mobileNavToggle');
       this.logoHomeBtn = document.getElementById('logoHomeBtn');
       this.navUniverseBtn = document.getElementById('navUniverseBtn');
       this.navFileRunnerBtn = document.getElementById('navFileRunnerBtn');
@@ -1736,6 +1739,7 @@
 
       // Auth Modal Elements
       this.authOverlay = document.getElementById('authOverlay');
+      this.btnAuthClose = document.getElementById('btnAuthClose');
       this.authTabLogin = document.getElementById('authTabLogin');
       this.authTabSignup = document.getElementById('authTabSignup');
       this.authLoginPanel = document.getElementById('authLoginPanel');
@@ -2056,6 +2060,41 @@
         if (btn) btn.addEventListener('click', () => this.switchView(viewName));
       });
 
+      if (this.mobileNavToggle && this.appHeader && this.siteNavigation) {
+        this.mobileNavToggle.addEventListener('click', () => {
+          const isOpen = this.mobileNavToggle.getAttribute('aria-expanded') === 'true';
+          this.mobileNavToggle.setAttribute('aria-expanded', String(!isOpen));
+          this.mobileNavToggle.setAttribute('aria-label', isOpen ? 'Open navigation menu' : 'Close navigation menu');
+          this.appHeader.classList.toggle('mobile-nav-open', !isOpen);
+        });
+
+        this.siteNavigation.addEventListener('click', (event) => {
+          if (!event.target.closest('.nav-btn')) return;
+          this.mobileNavToggle.setAttribute('aria-expanded', 'false');
+          this.mobileNavToggle.setAttribute('aria-label', 'Open navigation menu');
+          this.appHeader.classList.remove('mobile-nav-open');
+        });
+      }
+
+      const dashboardSidebar = document.querySelector('.dashboard-sidebar');
+      if (dashboardSidebar) {
+        dashboardSidebar.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-view], button[data-scroll]');
+          if (!button) return;
+
+          dashboardSidebar.querySelectorAll('.dashboard-sidebar-link').forEach((link) => {
+            link.classList.toggle('active', link === button);
+          });
+
+          if (button.dataset.view) {
+            this.switchView(button.dataset.view);
+          } else {
+            const target = document.getElementById(button.dataset.scroll);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
       // All Home/Back Buttons inside games
       document.querySelectorAll('.back-to-universe-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -2101,6 +2140,9 @@
       // Auth Dialog Triggers & Tabs
       if (this.btnOpenAuth) {
         this.btnOpenAuth.addEventListener('click', () => this.openAuthModal());
+      }
+      if (this.btnAuthClose) {
+        this.btnAuthClose.addEventListener('click', () => this.closeAuthModal());
       }
       if (this.btnSignOut) {
         this.btnSignOut.addEventListener('click', () => this.handleSignOut());
@@ -2357,6 +2399,16 @@
       else if (viewName === 'inboxInvaders') this.navInboxInvadersBtn.classList.add('active');
       else if (viewName === 'hangar') this.navHangarBtn.classList.add('active');
       else if (viewName === 'bounties') this.navBountiesBtn.classList.add('active');
+
+      document.querySelectorAll('.dashboard-sidebar-link[data-view]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === viewName);
+      });
+
+      if (this.mobileNavToggle && this.appHeader) {
+        this.mobileNavToggle.setAttribute('aria-expanded', 'false');
+        this.mobileNavToggle.setAttribute('aria-label', 'Open navigation menu');
+        this.appHeader.classList.remove('mobile-nav-open');
+      }
 
       this.renderProfile();
       window.scrollTo({ top: 0, behavior: 'smooth' });
