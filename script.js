@@ -359,12 +359,12 @@
   // 3. FILE SYSTEM UTILITIES (FOR FILE RUNNER)
   // =========================================================================
   const FILE_CATEGORIES = {
-    Images: { icon: '🖼️', name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'avif'] },
-    Documents: { icon: '📄', name: 'Documents', extensions: ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'md'] },
-    Videos: { icon: '🎬', name: 'Videos', extensions: ['mp4', 'mkv', 'mov', 'avi', 'wmv', 'flv', 'webm', 'm4v'] },
-    Audio: { icon: '🎵', name: 'Audio', extensions: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'] },
-    Archives: { icon: '📦', name: 'Archives', extensions: ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'iso'] },
-    Others: { icon: '📁', name: 'Others', extensions: [] }
+    Images: { icon: '[IMG]', name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'avif'] },
+    Documents: { icon: '[DOC]', name: 'Documents', extensions: ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'md'] },
+    Videos: { icon: '[VID]', name: 'Videos', extensions: ['mp4', 'mkv', 'mov', 'avi', 'wmv', 'flv', 'webm', 'm4v'] },
+    Audio: { icon: '[AUD]', name: 'Audio', extensions: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'] },
+    Archives: { icon: '[ARC]', name: 'Archives', extensions: ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'iso'] },
+    Others: { icon: '[OTH]', name: 'Others', extensions: [] }
   };
 
   function getFileCategory(filename) {
@@ -610,13 +610,13 @@
       this.collectibleTimer += dt;
       if (this.collectibleTimer > 3.0) {
         this.collectibleTimer = 0;
-        const icons = ['📄', '🖼️', '🎵', '📦', '🎬'];
+        const tags = ['DOC', 'IMG', 'AUD', 'ARC', 'VID'];
         this.collectibles.push({
           x: this.canvas.width + 20,
           y: this.groundY - (Math.random() > 0.5 ? 85 : 40),
           w: 24,
           h: 24,
-          icon: icons[Math.floor(Math.random() * icons.length)]
+          icon: tags[Math.floor(Math.random() * tags.length)]
         });
       }
 
@@ -744,9 +744,9 @@
           ctx.fillStyle = '#27272a';
           ctx.fillRect(obs.x - 3, obs.y, 5, obs.h);
           ctx.fillRect(obs.x + obs.w - 2, obs.y, 5, obs.h);
-          ctx.fillStyle = '#a1a1aa';
-          ctx.font = '10px JetBrains Mono, monospace';
-          ctx.fillText('⚡ BEAM', obs.x, obs.y - 4);
+          ctx.fillStyle = '#A1A1A6';
+          ctx.font = '700 9px JetBrains Mono, monospace';
+          ctx.fillText('LASER BEAM', obs.x, obs.y - 4);
         } else {
           ctx.fillStyle = '#1c1c1f';
           ctx.strokeStyle = '#ffffff';
@@ -761,21 +761,23 @@
         }
       });
 
-      // Collectibles
+      // Collectibles (Precision Data Pods)
       this.collectibles.forEach((col) => {
         ctx.save();
         ctx.translate(col.x + col.w / 2, col.y + col.h / 2);
-        ctx.fillStyle = '#18181b';
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.2;
+        ctx.fillStyle = '#101010';
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.arc(0, 0, 13, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
-        ctx.font = '13px sans-serif';
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '700 8px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(col.icon, 0, 1);
+        ctx.fillText(col.icon || 'DATA', 0, 1);
         ctx.restore();
       });
 
@@ -837,7 +839,7 @@
   // 5. GAME TWO: INBOX INVADERS ARCADE SHOOTER (GENUINE PLAYABLE GAME)
   // =========================================================================
   const SAMPLE_INBOX_EMAILS = [
-    { id: 1, subject: '⚡ FLASH SALE: 70% Off Electronics Ends Tonight', category: 'Promotions', sender: 'deals@megastore.com' },
+    { id: 1, subject: 'FLASH SALE: 70% Off Electronics Ends Tonight', category: 'Promotions', sender: 'deals@megastore.com' },
     { id: 2, subject: 'Exclusive VIP Discount on Flight Bookings', category: 'Promotions', sender: 'promos@airtravel.com' },
     { id: 3, subject: 'CLAIM YOUR $1,000,000 LOTTERY WINNINGS NOW', category: 'Spam', sender: 'reward@crypto-win-portal.xyz' },
     { id: 4, subject: 'Immediate Account Verification Required', category: 'Spam', sender: 'security-alert@fakebank-portal.net' },
@@ -848,7 +850,7 @@
     { id: 9, subject: 'Special Invitation: Free Crypto Investment Webinar', category: 'Spam', sender: 'info@quickwealthgroup.co' },
     { id: 10, subject: 'The Design Systems Journal Issue #48', category: 'Newsletters', sender: 'team@designsystems.org' },
     { id: 11, subject: 'New connection request from Sarah Jenkins', category: 'Social', sender: 'messages@proconnect.com' },
-    { id: 12, subject: '🔥 50% Off Pizza Night promo code inside!', category: 'Promotions', sender: 'deals@pizzaparadise.com' },
+    { id: 12, subject: '50% Off Pizza Night — promo code inside!', category: 'Promotions', sender: 'deals@pizzaparadise.com' },
     { id: 13, subject: 'Notice: Suspicious transaction detected in your wallet', category: 'Spam', sender: 'alert@cryptowallet-fake.com' },
     { id: 14, subject: 'Cyber Security Daily: Protecting API keys', category: 'Newsletters', sender: 'briefs@securespot.net' },
     { id: 15, subject: 'Mark liked your recent post: "Hackathon Prep"', category: 'Social', sender: 'feed@socialnet.com' },
@@ -1495,7 +1497,7 @@
         ctx.font = '700 9px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const label = pw.type === 'rapid' ? '⚡' : (pw.type === 'shield' ? '🛡️' : '2X');
+        const label = pw.type === 'rapid' ? 'RPD' : (pw.type === 'shield' ? 'SHD' : '2X');
         ctx.fillText(label, 0, 1);
         ctx.restore();
       });
@@ -1515,7 +1517,7 @@
 
           ctx.fillStyle = '#ffffff';
           ctx.font = '10px JetBrains Mono, monospace';
-          ctx.fillText('🛡️ VIP', 8, 18);
+          ctx.fillText('[ VIP ]', 8, 18);
         } else {
           // Alien Email Drone
           ctx.fillStyle = '#18181b';
@@ -1536,7 +1538,7 @@
           ctx.fillStyle = '#ffffff';
           ctx.font = '10px sans-serif';
           ctx.textAlign = 'center';
-          const icon = e.category === 'Spam' ? '💀' : (e.category === 'Newsletters' ? '🛸' : '✉️');
+          const icon = e.category === 'Spam' ? 'SPA' : (e.category === 'Newsletters' ? 'NWS' : 'MSG');
           ctx.fillText(icon, e.w / 2, e.h / 2 + 2);
         }
 
@@ -1880,6 +1882,7 @@
           const shortName = email.split('@')[0];
           if (this.welcomeName) this.welcomeName.textContent = shortName;
           if (this.welcomeStreak) this.welcomeStreak.textContent = this.profile.state.streakDays;
+          if (this.welcomeAvatar) this.welcomeAvatar.textContent = shortName.charAt(0).toUpperCase();
         }
       }
 
@@ -1933,7 +1936,7 @@
           });
           if (error) throw error;
           if (msgEl) {
-            msgEl.textContent = '✅ Magic link sent! Check your inbox to sign in.';
+            msgEl.textContent = 'Authorization link dispatched — check your inbox to sign in.';
             msgEl.style.display = 'block';
           }
         } catch (err) {
@@ -1999,7 +2002,13 @@
           document.getElementById('hudScore').textContent = score.toLocaleString();
         },
         (hearts) => {
-          document.getElementById('hudHearts').textContent = '❤️'.repeat(hearts) + '🖤'.repeat(3 - hearts);
+          const el = document.getElementById('hudHearts');
+          el.innerHTML = '';
+          for (let i = 0; i < 3; i++) {
+            const pip = document.createElement('span');
+            pip.className = 'life-pip' + (i >= hearts ? ' spent' : '');
+            el.appendChild(pip);
+          }
         }
       );
       this.fileRunner.setSound(this.sound);
@@ -2015,7 +2024,9 @@
           document.getElementById('invadersTotalCount').textContent = hud.total;
           document.getElementById('invadersScoreDisplay').textContent = hud.score.toLocaleString();
           document.getElementById('invadersComboDisplay').textContent = hud.combo;
-          document.getElementById('invadersLivesDisplay').textContent = '❤️'.repeat(hud.lives) + '🖤'.repeat(3 - hud.lives);
+          document.getElementById('invadersLivesDisplay').innerHTML = Array.from({length: 3}, (_, i) =>
+            `<span class="life-pip${i >= hud.lives ? ' spent' : ''}"></span>`
+          ).join('');
           if (hud.bossHealthPct !== null) {
             const fill = document.getElementById('bossHealthFill');
             if (fill) fill.style.width = `${hud.bossHealthPct}%`;
@@ -2324,8 +2335,11 @@
     }
 
     updateSfxButton() {
-      this.sfxIcon.textContent = this.sound.muted ? '🔇' : '🔊';
-      this.sfxToggleBtn.style.opacity = this.sound.muted ? '0.6' : '1';
+      const muted = this.sound.muted;
+      this.sfxIcon.innerHTML = muted
+        ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`
+        : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+      this.sfxToggleBtn.style.opacity = muted ? '0.55' : '1';
     }
 
     switchView(viewName) {
@@ -2418,7 +2432,7 @@
             <span class="bounty-badge">${isDone ? 'COMPLETED' : '+50 COINS'}</span>
           </div>
           <p class="bounty-desc">${ach.desc}</p>
-          <div class="bounty-footer">${isDone ? '✓ MEDAL UNLOCKED' : '🔒 MISSION PENDING'}</div>
+          <div class="bounty-footer">${isDone ? '✓ MEDAL UNLOCKED' : '[LOCKED] MISSION PENDING'}</div>
         `;
         grid.appendChild(card);
       });
@@ -2471,10 +2485,7 @@
             const chip = document.createElement('div');
             chip.className = 'category-chip';
             chip.innerHTML = `
-              <div class="chip-icon-name">
-                <span>${FILE_CATEGORIES[catName].icon}</span>
-                <span>${catName}</span>
-              </div>
+              <span class="chip-name">${catName}</span>
               <span class="chip-count">${count} files</span>
             `;
             this.runnerCategoryChips.appendChild(chip);
@@ -2559,7 +2570,7 @@
           document.getElementById('hudMediaCount').textContent = sortedCounts.Media;
         }
 
-        this.showFileRunnerToast(`📁 [${item.category}] ${finalName} sorted!`);
+        this.showFileRunnerToast(`[${item.category}] ${finalName} — SORTED`);
         this.fileRunner.spawnFilePodEvent(item.category, finalName);
         this.sound.playCollect();
       }
@@ -2702,7 +2713,11 @@
       this.profile.addCoins(count * 4 + 25);
 
       this.sound.playVictory();
-      alert(`✓ Triage Confirmed! ${count} email actions safely verified. +${count * 20} XP & +${count * 4 + 25} Coins added to your Commander Profile.`);
+      this.showInfoModal(
+        'TRIAGE CONFIRMED',
+        `<p><strong>${count} email actions</strong> safely verified and committed.</p>
+         <p>+${count * 20} XP &amp; +${count * 4 + 25} Coins added to your Commander Profile.</p>`
+      );
 
       this.renderProfile();
       this.renderDashboardMissionLog();
