@@ -202,13 +202,29 @@
   ];
 
   class PlayerProfileManager {
-    constructor() {
+    constructor(userId = 'guest') {
+      this.userId = userId;
       this.state = this.loadState();
       this.checkDailyStreak();
     }
 
+    setUserId(userId) {
+      this.userId = userId || 'guest';
+      this.state = this.loadState();
+      this.checkDailyStreak();
+    }
+
+    getStorageKey() {
+      return `questify_user_${this.userId}`;
+    }
+
     loadState() {
-      const saved = localStorage.getItem('questify_universe_state');
+      const key = this.getStorageKey();
+      let saved = localStorage.getItem(key);
+      if (!saved && this.userId === 'guest') {
+        // Fallback to legacy single-user key
+        saved = localStorage.getItem('questify_universe_state');
+      }
       if (saved) {
         try {
           return JSON.parse(saved);
@@ -216,8 +232,12 @@
           console.warn('Resetting corrupt state');
         }
       }
+      const defaultName = (this.userId === 'guest' || !this.userId)
+        ? 'COMMANDER NOVA'
+        : ('CMD ' + this.userId.split('@')[0].toUpperCase().slice(0, 12));
+
       return {
-        callsign: 'COMMANDER NOVA',
+        callsign: defaultName,
         xp: 0,
         coins: 150,
         streakDays: 1,
@@ -234,7 +254,7 @@
     }
 
     saveState() {
-      localStorage.setItem('questify_universe_state', JSON.stringify(this.state));
+      localStorage.setItem(this.getStorageKey(), JSON.stringify(this.state));
     }
 
     checkDailyStreak() {
@@ -1612,17 +1632,39 @@
   // =========================================================================
   // 6. MAIN APPLICATION ORCHESTRATOR & ROUTER
   // =========================================================================
+  // =========================================================================
+  // SUPABASE AUTHENTICATION CONFIGURATION & ENVIRONMENT SETUP
+  // =========================================================================
+  // To enable production cross-device email login with Supabase:
+  // 1. Create a free project at https://supabase.com
+  // 2. Go to Project Settings -> API
+  // 3. Copy Project URL and Anon Public Key (safe for client-side JS)
+  // 4. In Supabase Dashboard -> Authentication -> URL Configuration -> Redirect URLs,
+  //    add your deployed Vercel domain: https://your-project.vercel.app
+  // 5. Replace the placeholder values below or define window.QUESTIFY_SUPABASE_URL
+  //
+  // NOTE: If credentials are not configured, QUESTIFY seamlessly operates in
+  // Integration-Ready Demo Mode: you can type any email to test separate user
+  // accounts, isolated progression, and persistent sessions safely!
+  const SUPABASE_CONFIG = {
+    url: window.QUESTIFY_SUPABASE_URL || 'https://YOUR_SUPABASE_PROJECT_ID.supabase.co',
+    anonKey: window.QUESTIFY_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
+  };
+
   class QuestifyUniverseApp {
     constructor() {
       this.sound = new SoundFX();
-      this.profile = new PlayerProfileManager();
+      this.profile = new PlayerProfileManager('guest');
 
       this.currentView = 'dashboard';
       this.currentDirHandle = null;
       this.discoveredFiles = [];
       this.appliedFileActions = [];
+      this.currentUser = null;
+      this.supabaseClient = null;
 
       this.initDom();
+      this.initAuth();
       this.initFileRunner();
       this.initInboxInvaders();
       this.bindEvents();
@@ -1651,10 +1693,27 @@
       this.sfxToggleBtn = document.getElementById('sfxToggleBtn');
       this.sfxIcon = document.getElementById('sfxIcon');
 
-      // Profile Mini HUD
+      // Profile Mini HUD & User Chip
       this.miniRankBadge = document.getElementById('miniRankBadge');
       this.miniCoinsVal = document.getElementById('miniCoinsVal');
       this.miniStreakVal = document.getElementById('miniStreakVal');
+      this.userChip = document.getElementById('userChip');
+      this.userAvatarMini = document.getElementById('userAvatarMini');
+      this.userNameMini = document.getElementById('userNameMini');
+      this.btnSignOut = document.getElementById('btnSignOut');
+      this.btnOpenAuth = document.getElementById('btnOpenAuth');
+
+      // Hero Elements
+      this.heroStartBtn = document.getElementById('heroStartBtn');
+      this.heroExploreBtn = document.getElementById('heroExploreBtn');
+      this.heroFilesCount = document.getElementById('heroFilesCount');
+      this.heroEmailsCount = document.getElementById('heroEmailsCount');
+
+      // Welcome Banner
+      this.welcomeBanner = document.getElementById('welcomeBanner');
+      this.welcomeAvatar = document.getElementById('welcomeAvatar');
+      this.welcomeName = document.getElementById('welcomeName');
+      this.welcomeStreak = document.getElementById('welcomeStreak');
 
       // Profile Command Card
       this.profileLvlTag = document.getElementById('profileLvlTag');
@@ -1672,6 +1731,37 @@
       this.btnPlayFileRunner = document.getElementById('btnPlayFileRunner');
       this.btnPlayInboxInvaders = document.getElementById('btnPlayInboxInvaders');
       this.dashboardMissionLog = document.getElementById('dashboardMissionLog');
+
+      // Auth Modal Elements
+      this.authOverlay = document.getElementById('authOverlay');
+      this.authTabLogin = document.getElementById('authTabLogin');
+      this.authTabSignup = document.getElementById('authTabSignup');
+      this.authLoginPanel = document.getElementById('authLoginPanel');
+      this.authSignupPanel = document.getElementById('authSignupPanel');
+      this.loginEmailInput = document.getElementById('loginEmailInput');
+      this.btnSendMagicLink = document.getElementById('btnSendMagicLink');
+      this.magicLinkSent = document.getElementById('magicLinkSent');
+      this.authLoginError = document.getElementById('authLoginError');
+      this.signupEmailInput = document.getElementById('signupEmailInput');
+      this.btnSignupSendLink = document.getElementById('btnSignupSendLink');
+      this.signupLinkSent = document.getElementById('signupLinkSent');
+      this.authSignupError = document.getElementById('authSignupError');
+      this.btnPlayAsGuest = document.getElementById('btnPlayAsGuest');
+
+      // Info / About / Privacy Modal Elements
+      this.infoModal = document.getElementById('infoModal');
+      this.infoModalClose = document.getElementById('infoModalClose');
+      this.infoModalTitle = document.getElementById('infoModalTitle');
+      this.infoModalBody = document.getElementById('infoModalBody');
+      this.footerAboutBtn = document.getElementById('footerAboutBtn');
+      this.footerHowBtn = document.getElementById('footerHowBtn');
+      this.footerPrivacyBtn = document.getElementById('footerPrivacyBtn');
+      this.footerCreatorBtn = document.getElementById('footerCreatorBtn');
+      this.footerContactBtn = document.getElementById('footerContactBtn');
+      this.footerFileRunnerLink = document.getElementById('footerFileRunnerLink');
+      this.footerInboxLink = document.getElementById('footerInboxLink');
+      this.footerHangarLink = document.getElementById('footerHangarLink');
+      this.footerBountiesLink = document.getElementById('footerBountiesLink');
 
       // File Runner DOM Elements
       this.runnerSelectFolderBtn = document.getElementById('runnerSelectFolderBtn');
@@ -1718,6 +1808,187 @@
       };
 
       this.updateSfxButton();
+    }
+
+    initAuth() {
+      // 1. Initialize Supabase if SDK and valid keys are present
+      if (window.supabase && SUPABASE_CONFIG.url && !SUPABASE_CONFIG.url.includes('YOUR_SUPABASE_PROJECT_ID')) {
+        try {
+          this.supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+          this.supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+              this.setUserAccount(session.user.email, session.user.id, true);
+            }
+          });
+        } catch (err) {
+          console.warn('Supabase client initialization note:', err);
+        }
+      }
+
+      // 2. Check for existing saved session in local storage
+      const stored = localStorage.getItem('questify_current_user');
+      if (stored) {
+        try {
+          const u = JSON.parse(stored);
+          this.setUserAccount(u.email, u.id, false);
+          return;
+        } catch (e) {
+          console.warn('Corrupt user session');
+        }
+      }
+
+      // 3. Fallback to guest mode
+      this.setUserAccount('Guest', 'guest', false);
+    }
+
+    setUserAccount(email, id, persist = true) {
+      const isGuest = !email || email.toLowerCase() === 'guest' || id === 'guest';
+      this.currentUser = isGuest ? null : { email, id };
+
+      if (persist) {
+        if (isGuest) {
+          localStorage.removeItem('questify_current_user');
+        } else {
+          localStorage.setItem('questify_current_user', JSON.stringify(this.currentUser));
+        }
+      }
+
+      // Switch profile manager to this account's isolated data
+      const accountKey = isGuest ? 'guest' : email;
+      this.profile.setUserId(accountKey);
+
+      if (this.callsignInput) {
+        this.callsignInput.value = this.profile.state.callsign;
+      }
+
+      // Update UI Header and Welcome Banner
+      if (isGuest) {
+        if (this.userChip) this.userChip.style.display = 'none';
+        if (this.btnOpenAuth) this.btnOpenAuth.style.display = 'inline-flex';
+        if (this.welcomeBanner) this.welcomeBanner.style.display = 'none';
+      } else {
+        if (this.userChip) {
+          this.userChip.style.display = 'flex';
+          const initial = (email[0] || 'C').toUpperCase();
+          if (this.userAvatarMini) this.userAvatarMini.textContent = initial;
+          const shortName = email.split('@')[0];
+          if (this.userNameMini) this.userNameMini.textContent = shortName;
+        }
+        if (this.btnOpenAuth) this.btnOpenAuth.style.display = 'none';
+        if (this.welcomeBanner) {
+          this.welcomeBanner.style.display = 'flex';
+          const shortName = email.split('@')[0];
+          if (this.welcomeName) this.welcomeName.textContent = shortName;
+          if (this.welcomeStreak) this.welcomeStreak.textContent = this.profile.state.streakDays;
+        }
+      }
+
+      this.renderProfile();
+      this.renderDashboardMissionLog();
+      this.renderAchievements();
+    }
+
+    openAuthModal() {
+      if (this.authOverlay) {
+        this.authOverlay.style.display = 'flex';
+        if (this.authLoginError) this.authLoginError.style.display = 'none';
+        if (this.authSignupError) this.authSignupError.style.display = 'none';
+        if (this.magicLinkSent) this.magicLinkSent.style.display = 'none';
+        if (this.signupLinkSent) this.signupLinkSent.style.display = 'none';
+      }
+    }
+
+    closeAuthModal() {
+      if (this.authOverlay) {
+        this.authOverlay.style.display = 'none';
+      }
+    }
+
+    async handleMagicLink(email, isSignup = false) {
+      const errEl = isSignup ? this.authSignupError : this.authLoginError;
+      const msgEl = isSignup ? this.signupLinkSent : this.magicLinkSent;
+      const btn = isSignup ? this.btnSignupSendLink : this.btnSendMagicLink;
+
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        if (errEl) {
+          errEl.textContent = 'Please enter a valid email address.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errEl) errEl.style.display = 'none';
+      const originalText = btn ? btn.textContent : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Verifying...';
+      }
+
+      // If real Supabase client is connected
+      if (this.supabaseClient) {
+        try {
+          const { error } = await this.supabaseClient.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: window.location.origin }
+          });
+          if (error) throw error;
+          if (msgEl) {
+            msgEl.textContent = '✅ Magic link sent! Check your inbox to sign in.';
+            msgEl.style.display = 'block';
+          }
+        } catch (err) {
+          if (errEl) {
+            errEl.textContent = err.message || 'Authentication error. Please check Supabase settings.';
+            errEl.style.display = 'block';
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        }
+      } else {
+        // Integration-Ready Demo Auth:
+        // Automatically isolates user progress per email so judges and users can test accounts instantly
+        setTimeout(() => {
+          if (msgEl) {
+            msgEl.textContent = `✓ Signed in as ${email}! (Account Active)`;
+            msgEl.style.display = 'block';
+          }
+          setTimeout(() => {
+            this.setUserAccount(email, email, true);
+            this.closeAuthModal();
+            if (msgEl) msgEl.style.display = 'none';
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          }, 800);
+        }, 400);
+      }
+    }
+
+    async handleSignOut() {
+      if (this.supabaseClient) {
+        try {
+          await this.supabaseClient.auth.signOut();
+        } catch (e) {
+          console.warn('Signout warning:', e);
+        }
+      }
+      this.setUserAccount('Guest', 'guest', true);
+      alert('You have been signed out. Continuing in Guest Mode.');
+    }
+
+    showInfoModal(title, htmlContent) {
+      if (!this.infoModal) return;
+      if (this.infoModalTitle) this.infoModalTitle.textContent = title;
+      if (this.infoModalBody) this.infoModalBody.innerHTML = htmlContent;
+      this.infoModal.style.display = 'flex';
+    }
+
+    closeInfoModal() {
+      if (this.infoModal) this.infoModal.style.display = 'none';
     }
 
     initFileRunner() {
@@ -1790,12 +2061,188 @@
       });
 
       // Callsign Input
-      this.callsignInput.value = this.profile.state.callsign;
-      this.callsignInput.addEventListener('change', (e) => {
-        const val = e.target.value.trim().toUpperCase() || 'COMMANDER NOVA';
-        this.profile.state.callsign = val;
-        this.profile.saveState();
-        this.callsignInput.value = val;
+      if (this.callsignInput) {
+        this.callsignInput.value = this.profile.state.callsign;
+        this.callsignInput.addEventListener('change', (e) => {
+          const val = e.target.value.trim().toUpperCase() || 'COMMANDER NOVA';
+          this.profile.state.callsign = val;
+          this.profile.saveState();
+          this.callsignInput.value = val;
+          if (this.welcomeName && this.currentUser) {
+            this.welcomeName.textContent = val;
+          }
+        });
+      }
+
+      // Hero CTA buttons
+      if (this.heroStartBtn) {
+        this.heroStartBtn.addEventListener('click', () => {
+          this.switchView('fileRunner');
+        });
+      }
+      if (this.heroExploreBtn) {
+        this.heroExploreBtn.addEventListener('click', () => {
+          const target = document.getElementById('gameCardsSection') || document.getElementById('gamesAnchor');
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+
+      // Auth Dialog Triggers & Tabs
+      if (this.btnOpenAuth) {
+        this.btnOpenAuth.addEventListener('click', () => this.openAuthModal());
+      }
+      if (this.btnSignOut) {
+        this.btnSignOut.addEventListener('click', () => this.handleSignOut());
+      }
+
+      if (this.authTabLogin && this.authTabSignup) {
+        this.authTabLogin.addEventListener('click', () => {
+          this.authTabLogin.classList.add('active');
+          this.authTabSignup.classList.remove('active');
+          if (this.authLoginPanel) this.authLoginPanel.classList.add('active');
+          if (this.authSignupPanel) this.authSignupPanel.classList.remove('active');
+        });
+
+        this.authTabSignup.addEventListener('click', () => {
+          this.authTabSignup.classList.add('active');
+          this.authTabLogin.classList.remove('active');
+          if (this.authSignupPanel) this.authSignupPanel.classList.add('active');
+          if (this.authLoginPanel) this.authLoginPanel.classList.remove('active');
+        });
+      }
+
+      if (this.btnSendMagicLink) {
+        this.btnSendMagicLink.addEventListener('click', () => {
+          const email = this.loginEmailInput ? this.loginEmailInput.value.trim() : '';
+          this.handleMagicLink(email, false);
+        });
+      }
+
+      if (this.btnSignupSendLink) {
+        this.btnSignupSendLink.addEventListener('click', () => {
+          const email = this.signupEmailInput ? this.signupEmailInput.value.trim() : '';
+          this.handleMagicLink(email, true);
+        });
+      }
+
+      if (this.btnPlayAsGuest) {
+        this.btnPlayAsGuest.addEventListener('click', () => {
+          this.setUserAccount('Guest', 'guest', true);
+          this.closeAuthModal();
+        });
+      }
+
+      // Close auth modal when clicking outside
+      if (this.authOverlay) {
+        this.authOverlay.addEventListener('click', (e) => {
+          if (e.target === this.authOverlay) {
+            this.closeAuthModal();
+          }
+        });
+      }
+
+      // Footer Links & Info Modals
+      if (this.footerAboutBtn) {
+        this.footerAboutBtn.addEventListener('click', () => {
+          this.showInfoModal(
+            'About QUESTIFY',
+            `<p><strong>QUESTIFY</strong> is a dual-mission gamified productivity arcade that transforms boring digital chores into high-energy, 60 FPS playable games while executing real-world tasks on your system.</p>
+             <br>
+             <p>Featuring two distinct missions in one unified universe:</p>
+             <ul style="margin: 0.75rem 0 0.75rem 1.25rem;">
+               <li><strong>File Runner:</strong> Jump, dodge and sort loose computer files into categorised folders via the File System Access API.</li>
+               <li><strong>Inbox Invaders:</strong> Arcade space shooter where each wave corresponds to real or simulated email triage for safe archiving.</li>
+             </ul>
+             <br>
+             <p>Built with pure vanilla web technologies: HTML5, CSS3, and JavaScript — zero Node.js, zero npm, zero external build steps.</p>`
+          );
+        });
+      }
+
+      if (this.footerHowBtn) {
+        this.footerHowBtn.addEventListener('click', () => {
+          this.showInfoModal(
+            'How to Play QUESTIFY',
+            `<p><strong>Mission 01 — File Runner:</strong></p>
+             <p>1. Open File Runner and click <em>'Select Folder to Clean'</em> (e.g. Downloads or Desktop).</p>
+             <p>2. Press <strong>SPACE / UP</strong> to Jump and hold <strong>DOWN / S</strong> to Crouch under overhead obstacles.</p>
+             <p>3. As you collect data pods, QUESTIFY moves your files into clean Images, Documents, Videos, Audio, and Archives folders with zero file overwrites.</p>
+             <br>
+             <p><strong>Mission 02 — Inbox Invaders:</strong></p>
+             <p>1. Choose simulated inbox or connect an account.</p>
+             <p>2. Move with <strong>ARROW KEYS</strong> or <strong>A / D</strong>. Fire lasers with <strong>SPACEBAR</strong>.</p>
+             <p>3. Shoot Promotions, Spam, and Newsletters. <em>Protect Important VIP emails!</em></p>
+             <p>4. Confirm triage at the end of the wave to safely archive unwanted items.</p>`
+          );
+        });
+      }
+
+      if (this.footerPrivacyBtn) {
+        this.footerPrivacyBtn.addEventListener('click', () => {
+          this.showInfoModal(
+            'Privacy & Security Shield',
+            `<p><strong>100% Client-Side Integrity:</strong></p>
+             <ul style="margin: 0.75rem 0 0.75rem 1.25rem;">
+               <li><strong>Zero Passwords:</strong> QUESTIFY never asks for, receives, or stores your email passwords.</li>
+               <li><strong>Zero Cloud Uploads:</strong> Files sorted in File Runner remain 100% local on your device.</li>
+               <li><strong>Zero Overwrites:</strong> Duplicate filenames are automatically renamed (e.g. <code>file (1).ext</code>) — no files are ever deleted.</li>
+               <li><strong>Reversible Archiving:</strong> Inbox actions remove labels without permanent deletion.</li>
+             </ul>`
+          );
+        });
+      }
+
+      if (this.footerCreatorBtn) {
+        const creatorSection = document.getElementById('creatorSection');
+        this.footerCreatorBtn.addEventListener('click', () => {
+          if (creatorSection) {
+            creatorSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      }
+
+      if (this.footerContactBtn) {
+        this.footerContactBtn.addEventListener('click', () => {
+          this.showInfoModal(
+            'Contact & Hackathon Team',
+            `<p><strong>QUESTIFY Arcade Platform</strong></p>
+             <br>
+             <p>Created by: <strong>VANSHIKA</strong></p>
+             <p>Built for the hackathon to make everyday chores fun and rewarding.</p>
+             <br>
+             <p>Check the project GitHub repository for code and documentation.</p>`
+          );
+        });
+      }
+
+      if (this.footerFileRunnerLink) {
+        this.footerFileRunnerLink.addEventListener('click', () => this.switchView('fileRunner'));
+      }
+      if (this.footerInboxLink) {
+        this.footerInboxLink.addEventListener('click', () => this.switchView('inboxInvaders'));
+      }
+      if (this.footerHangarLink) {
+        this.footerHangarLink.addEventListener('click', () => this.switchView('hangar'));
+      }
+      if (this.footerBountiesLink) {
+        this.footerBountiesLink.addEventListener('click', () => this.switchView('bounties'));
+      }
+
+      if (this.infoModalClose) {
+        this.infoModalClose.addEventListener('click', () => this.closeInfoModal());
+      }
+      if (this.infoModal) {
+        this.infoModal.addEventListener('click', (e) => {
+          if (e.target === this.infoModal) this.closeInfoModal();
+        });
+      }
+
+      // Keyboard ESC closes active modals
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          this.closeAuthModal();
+          this.closeInfoModal();
+        }
       });
 
       // File Runner Setup events
@@ -1921,6 +2368,13 @@
       this.metricTotalEmails.textContent = this.profile.state.totalEmailsProcessed;
       this.metricTotalCoins.textContent = this.profile.state.coins;
       this.metricProductivityScore.textContent = this.profile.getProductivityScore();
+
+      if (this.heroFilesCount) {
+        this.heroFilesCount.textContent = this.profile.state.totalFilesOrganized;
+      }
+      if (this.heroEmailsCount) {
+        this.heroEmailsCount.textContent = this.profile.state.totalEmailsProcessed;
+      }
     }
 
     renderDashboardMissionLog() {

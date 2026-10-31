@@ -1,98 +1,95 @@
-# 🛸 QUESTIFY — Two Games. One Epic Platform.
+# 🛸 QUESTIFY — Gamified Productivity Platform
 
-> **"BORING TASKS. EPIC MISSIONS."**  
-> Turn your digital mess into your next high score. Organize cluttered local folders and eliminate unwanted inboxes through two playable arcade games inside one unified dashboard.
+> **"YOUR CHORES. YOUR GAME. YOUR VICTORY."**  
+> Turn boring digital tasks into exciting missions. Play, progress and get things done.
 
-QUESTIFY is built strictly with **Vanilla Web Technologies**:
-- **HTML5** & 2D Canvas (Dual 60 FPS Game Engines)
-- **CSS3** (Bold, premium monochrome identity — pure black, charcoal, silver, and off-white. No neon colors.)
-- **Vanilla JavaScript** (ES6+, zero frameworks, zero external dependencies)
-- **Native File System Access API**
-- ❌ No Python
-- ❌ No Node.js
-- ❌ No npm or build pipelines
+QUESTIFY transforms everyday digital clutter (disorganized folders, overflowing email inboxes) into playable 60 FPS browser games while safely completing the actual real-world tasks on your system.
+
+Created with passion by **VANSHIKA** for the hackathon.
 
 ---
 
-## 🌌 The Questify Universe (Main Dashboard)
+## 🌟 What's New: Premium Redesign
 
-The central command dashboard connects both games under a unified shared career progression system:
-
-- **Player Profile:** Commander Callsign (customizable), Player Level, XP Progress Bar, and Career Ranks (from Orbital Recruit to Productivity Prime).
-- **Gamification Currency:** Arcade Coins (`🪙`), Daily Streak (`⚡`), and Productivity Integrity Score.
-- **Unified Chore Counter:** Tracks total real-world tasks completed (`Total Files Organised` + `Total Emails Purged`).
-- **Two Interactive Game Cards:**
-  1. **FILE RUNNER:** *"Run. Dodge. Collect. Organise."*
-  2. **INBOX INVADERS:** *"Lock. Load. Clean your inbox."*
-- **Persistent Storage:** All player levels, coins, streaks, high scores, and mission history are saved in browser `localStorage`.
+Inspired by modern, bright, light-themed gaming startups and Apple-style product presentation:
+- **Bright, Glossy White & Pearl Visual Theme:** Light background with soft glassmorphic surfaces, subtle gradients, and realistic depth.
+- **Dark Arcade Arenas:** The games themselves run inside dark arcade viewports for optimal visual contrast and retro game feel.
+- **Hero Section:** Animated 3D-inspired game visual, floating file elements, live statistics, and immediate call-to-actions.
+- **User Accounts & Authentication:** Secure email authentication via Supabase (Magic Links / OTP) or instant Guest Mode.
+- **Creator Credits Section:** Dedicated "Crafted with Passion" card highlighting the creator, easily customizable in one place.
+- **Zero Build Tools Required:** Pure **HTML5**, **CSS3**, and **Vanilla JavaScript** (ES6+). No Node.js, no Python, no npm!
 
 ---
 
-## 🏃 Game 01: FILE RUNNER
+## 🎮 Two Epic Missions. One Platform.
 
-Your proven real-world file organizer wrapped in a 60 FPS courier runner game.
+### 🏃 Mission 01: FILE RUNNER
+- **Gameplay:** 60 FPS courier runner. Jump (`Space` / `↑` / `W`) and crouch (`↓` / `S`) over spires and under overhead lasers.
+- **Real File Organizing:** Uses the native browser **File System Access API** (in Chrome / Edge) to scan any disorganized folder (e.g., Downloads).
+- **Categorization:** Automatically sorts files into `Images`, `Documents`, `Videos`, `Audio`, `Archives`, or `Others`.
+- **Zero Data Loss:** Files are safely moved with automatic duplicate renaming (`file (1).ext`) — no files are ever deleted or overwritten.
+- **Simulation Mode:** Includes instant simulation mode with sample files for quick testing.
 
-### Core Mechanics (Preserved & Polished):
-- **Courier Drone Controls:** Jump (`Space` / `↑` / `W`, with double-jump capability) and Crouch (Hold `↓` / `S`).
-- **On-Screen Touch Buttons:** `[Jump ↑]` and `[Crouch ↓]` for laptop touch screens and mobile.
-- **Real-Time On-Disk Sorting:**
-  - Select any cluttered folder on your PC using the browser's native File System Access API.
-  - Automatically identifies and categorizes files into `Images`, `Documents`, `Videos`, `Audio`, `Archives`, or `Others`.
-  - Duplicates are auto-renamed (`file (1).ext`) to ensure **zero data loss**.
-  - As you jump and crouch, files are moved in real time with in-game toast notifications popping up on the canvas.
-- **Simulation Mode:** Includes an instant simulation run mode with sample files for quick testing.
-
----
-
-## 👾 Game 02: INBOX INVADERS
-
-An arcade space shooter that turns email triage into a space fleet battle.
-
-### Story & Gameplay:
-- Thousands of promotional blasts, spam waves, and unread newsletters are swarming your workspace.
-- Pilot your defense ship along the bottom of the screen (`Arrow Left/Right` or `A/D`, and `Spacebar` to fire).
-- **Enemy Waves & Categories:**
-  - 👾 **Promotions:** Fast-moving agile drones.
-  - 💀 **Spam Swarm:** Erratic high-speed torpedoes.
-  - 🛸 **Newsletters:** Armored cruisers requiring multiple hits.
-  - 📡 **Social Notifications:** Agile ping scouts.
-  - 🛡️ **Important Emails:** Shielded VIP cargo. **Do NOT blast!** Protecting them and letting them pass safely awards high score bonuses (+500 PTS).
-- **Boss Wave (Wave 4):** Battle the giant **SPAM BOT MATRIX** mother-ship featuring a top health bar and projectile attacks.
-- **Power-Ups:** Destroying enemies drops `[⚡ Rapid Fire]` (3-way beam), `[🛡️ Energy Shield]`, and `[2X Multiplier]`.
-- **Safe Email Triage Flow:**
-  - Pre-loaded with a realistic 25-email demo sandbox across all categories.
-  - Includes client-side Google OAuth 2.0 configuration ready for live connection without asking for user passwords.
-  - **Reversible Archiving:** Actions are non-destructive (archiving, never permanent deletion).
-  - Explicit confirmation review step before applying changes.
+### 👾 Mission 02: INBOX INVADERS
+- **Gameplay:** 60 FPS retro space defense shooter. Move with Arrow keys or `A/D`, fire lasers with `Spacebar`.
+- **Enemy Waves:** 4 intense waves featuring Promotions, Spam torpedoes, Newsletter cruisers, Social ping scouts, and the giant **SPAM BOT MATRIX** boss.
+- **VIP Email Protection:** Important emails are shielded VIP cargo — protect them and avoid shooting them for massive score bonuses!
+- **Power-Ups:** Collect Rapid Fire (3-way beam), Energy Shield, and 2X Multiplier.
+- **Reversible Triage:** Eliminating emails prepares them for safe reversible archiving (removing the Inbox label), never permanent deletion.
 
 ---
 
-## 🎨 Visual Identity — Premium Monochrome
+## 🔒 Authentication & Account Progression
 
-Following a strict, elegant black-and-white aesthetic:
-- **Pure Black:** `#000000` base and canvas arenas.
-- **Charcoal & Silver:** `#121214` surface cards, `#27272a` borders, `#a1a1aa` secondary accents.
-- **Crisp Off-White:** `#ffffff` and `#f4f4f5` for high-contrast typography and projectiles.
-- **Zero Neon Colors:** No purple, blue, green, or pink glowing clutter.
+QUESTIFY supports two flexible authentication modes:
+
+### 1. Instant Guest Mode (Default)
+- No sign-in required.
+- Full access to all games, mechanics, and profile features.
+- Player progress is saved locally in the browser under an isolated guest profile.
+
+### 2. Email Magic Link (Supabase)
+- **Zero Passwords:** Users never enter or share their email password.
+- **Separate Accounts:** Each email account has its own isolated profile, level, coins, and high scores.
+- **Setup Instructions for Production:**
+  1. Create a free project at [supabase.com](https://supabase.com).
+  2. In your Supabase Dashboard, go to **Project Settings** → **API**.
+  3. Copy your **Project URL** and **Anon Public Key**.
+  4. In `script.js`, update `SUPABASE_CONFIG`:
+     ```javascript
+     const SUPABASE_CONFIG = {
+       url: 'https://YOUR_PROJECT_ID.supabase.co',
+       anonKey: 'YOUR_ANON_PUBLIC_KEY'
+     };
+     ```
+  5. In Supabase Dashboard → **Authentication** → **URL Configuration** → **Redirect URLs**, add your deployed Vercel URL:
+     ```
+     https://your-questify-project.vercel.app/
+     ```
 
 ---
 
-## 🚀 How to Run in Google Chrome
+## ✏️ Customizing the Creator Name
 
-1. Open your folder:
+The creator name is defined in one documented place in `index.html`:
+```html
+<!-- Line ~367 in index.html -->
+<span class="creator-name" id="creatorName">VANSHIKA</span>
+```
+Change `VANSHIKA` to any name and it will update the credits card and contact information.
+
+---
+
+## 🚀 Running and Testing Locally
+
+1. Open your QUESTIFY project directory in Google Chrome:
    ```
-   C:\Users\Davinder Kumar\OneDrive\Desktop\QUESTIFY
+   C:\Users\Davinder Kumar\OneDrive\Desktop\QUESTIFY\index.html
    ```
-2. Double-click **`index.html`** (or right-click `index.html` → **Open with** → **Google Chrome**).
-3. The Questify Universe dashboard will load immediately.
-
----
-
-## 🧪 Testing Checklist
-
-- [x] **Single-Page Navigation:** Click between `Universe`, `File Runner`, `Inbox Invaders`, `Hangar`, and `Bounties`.
-- [x] **Home Buttons:** Both games feature a prominent `← HOME / UNIVERSE` button returning to the main dashboard.
-- [x] **File Runner:** Click `Play File Runner` → test folder scan or `Launch Simulation Run` → jump and crouch under obstacles while files sort.
-- [x] **Inbox Invaders:** Click `Play Inbox Invaders` → engage mission → move with `Arrow Left/Right` or `A/D` and shoot with `Spacebar` → destroy promotional/spam drones and defeat the Spam Matrix boss.
-- [x] **Triage Confirmation:** In Inbox Invaders, review the email manifest and click `Confirm & Apply Email Triage` to earn real XP and coins.
-- [x] **Shared Gamification:** Verify that Level, XP, Coins, and Mission Logs update and persist after refreshing the browser.
+2. Double-click `index.html` or open it with Google Chrome / Microsoft Edge.
+3. Test all features:
+   - Click **Start Your Mission** or choose **File Runner** / **Inbox Invaders**.
+   - Test folder sorting or click **Launch Simulation Run**.
+   - Play **Inbox Invaders**, defeat the boss, and confirm email triage.
+   - Inspect the **Hangar** to equip vessel skins and check **Bounties** for unlocked career medals.
+   - Test signing in with any email in the **Sign In** modal to see account switching in action.

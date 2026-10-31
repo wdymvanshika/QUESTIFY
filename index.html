@@ -3,23 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#09090b">
-  <meta name="description" content="QUESTIFY — Two Games. One Epic Platform. Turn your digital mess into your next high score with File Runner and Inbox Invaders.">
-  <title>QUESTIFY — Boring Tasks. Epic Missions.</title>
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="QUESTIFY — Turn boring digital chores into epic missions. Play, progress and get things done.">
+  <title>QUESTIFY — Your Chores. Your Game. Your Victory.</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-container">
+
+  <!-- ============================================================ -->
+  <!-- AUTH OVERLAY — shown on first visit or when logged out       -->
+  <!-- ============================================================ -->
+  <div id="authOverlay" class="auth-overlay" style="display:none;">
+    <div class="auth-modal">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <span class="auth-logo-text">QUESTIFY</span>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="authTabLogin">Sign In</button>
+        <button class="auth-tab" id="authTabSignup">Create Account</button>
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <div id="authLoginPanel" class="auth-panel active">
+        <h2 class="auth-heading">Welcome back, Commander</h2>
+        <p class="auth-subtext">Sign in to continue your missions and track your progress.</p>
+
+        <div class="auth-notice">
+          <span class="auth-notice-icon">🔒</span>
+          <span>We use secure Magic Links — <strong>no password required.</strong> We never ask for your Gmail password.</span>
+        </div>
+
+        <div class="auth-field">
+          <label for="loginEmailInput">Email Address</label>
+          <input type="email" id="loginEmailInput" class="auth-input" placeholder="commander@example.com" autocomplete="email">
+        </div>
+
+        <button id="btnSendMagicLink" class="btn-auth-primary">
+          <span id="magicLinkBtnText">Send Magic Link</span>
+        </button>
+
+        <div id="magicLinkSent" class="auth-success-msg" style="display:none;">
+          ✅ Magic link sent! Check your email inbox and click the link to sign in.
+        </div>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <button id="btnPlayAsGuest" class="btn-auth-guest">
+          Continue as Guest
+          <span class="guest-note">Progress saved on this device only</span>
+        </button>
+
+        <div id="authLoginError" class="auth-error" style="display:none;"></div>
+      </div>
+
+      <!-- SIGNUP PANEL -->
+      <div id="authSignupPanel" class="auth-panel">
+        <h2 class="auth-heading">Join the Mission</h2>
+        <p class="auth-subtext">Create your account to save progress across devices and compete globally.</p>
+
+        <div class="auth-notice">
+          <span class="auth-notice-icon">🔒</span>
+          <span>We use secure Magic Links — <strong>no password required.</strong></span>
+        </div>
+
+        <div class="auth-field">
+          <label for="signupEmailInput">Email Address</label>
+          <input type="email" id="signupEmailInput" class="auth-input" placeholder="commander@example.com" autocomplete="email">
+        </div>
+
+        <button id="btnSignupSendLink" class="btn-auth-primary">
+          <span id="signupLinkBtnText">Create Account & Send Link</span>
+        </button>
+
+        <div id="signupLinkSent" class="auth-success-msg" style="display:none;">
+          ✅ Check your email! Click the link to verify and activate your QUESTIFY account.
+        </div>
+
+        <div id="authSignupError" class="auth-error" style="display:none;"></div>
+
+        <p class="auth-disclaimer">
+          ⚙️ <strong>Developer note:</strong> Authentication requires a configured Supabase project.
+          See the <code>SUPABASE SETUP</code> section in <code>script.js</code> for instructions.
+          In guest mode, progress is stored in your browser only.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MAIN APP CONTAINER                                            -->
+  <!-- ============================================================ -->
+  <div class="app-container" id="appContainer">
 
     <!-- GLOBAL TOP NAVIGATION BAR -->
-    <header class="app-header">
+    <header class="app-header" id="appHeader">
       <div class="header-left">
         <button id="logoHomeBtn" class="logo-area" aria-label="Go to Questify Dashboard">
           <div class="logo-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
               <polyline points="2 17 12 22 22 17"></polyline>
               <polyline points="2 12 12 17 22 12"></polyline>
@@ -41,12 +133,22 @@
       </nav>
 
       <div class="header-right">
-        <!-- PLAYER HUD CHIPS -->
         <div class="player-hud-pill" id="playerProfileMini" title="Commander Profile">
           <span class="rank-badge-mini" id="miniRankBadge">LVL 1</span>
           <span class="coins-display"><span class="coin-icon">🪙</span> <span id="miniCoinsVal">0</span></span>
           <span class="streak-display"><span class="streak-icon">⚡</span> <span id="miniStreakVal">1D</span></span>
         </div>
+
+        <!-- AUTH USER CHIP -->
+        <div class="user-chip" id="userChip" style="display:none;">
+          <div class="user-avatar" id="userAvatarMini">?</div>
+          <span class="user-name-mini" id="userNameMini">Commander</span>
+          <button class="btn-signout" id="btnSignOut" title="Sign Out">↩</button>
+        </div>
+
+        <button id="btnOpenAuth" class="btn-signin-header" title="Sign In">
+          Sign In
+        </button>
 
         <button id="sfxToggleBtn" class="icon-toggle-btn" title="Toggle Sound Audio" aria-label="Toggle Sound">
           <span id="sfxIcon">🔊</span>
@@ -54,33 +156,124 @@
       </div>
     </header>
 
-    <!-- UNSUPPORTED BROWSER NOTIFICATION (For File System Access API) -->
+    <!-- UNSUPPORTED BROWSER NOTIFICATION -->
     <div id="browserNotice" class="browser-notice" style="display: none;">
       <div class="browser-notice-content">
-        <strong>Browser System Note:</strong> To organize real files on disk, use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>. Inbox Invaders and simulation runs work on all modern browsers.
+        <strong>Browser Note:</strong> To organize real files, use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>. Games and simulations work on all modern browsers.
       </div>
     </div>
 
-    <!-- MAIN VIEWPORT CONTAINER -->
+    <!-- MAIN VIEWPORT -->
     <main class="main-content">
 
-      <!-- ================================================================= -->
-      <!-- VIEW 1: MAIN DASHBOARD — THE QUESTIFY UNIVERSE                    -->
-      <!-- ================================================================= -->
+      <!-- ============================================================ -->
+      <!-- VIEW 1: LANDING / DASHBOARD                                  -->
+      <!-- ============================================================ -->
       <section id="dashboardView" class="view-screen active">
-        <div class="dashboard-shell">
 
-          <!-- UNIVERSE HERO BANNER -->
-          <div class="universe-hero">
-            <div class="hero-badge">THE DUAL-MISSION ARCADE PLATFORM</div>
-            <h1 class="hero-title">BORING TASKS. EPIC MISSIONS.</h1>
-            <p class="hero-subtitle">
-              Turn your digital mess into your next high score. Organize cluttered hard drives and eliminate overflowing inboxes through playable arcade games connected to your actual work.
-            </p>
+        <!-- ── HERO SECTION ── -->
+        <div class="hero-section">
+          <!-- Floating animated background elements -->
+          <div class="hero-bg-orb orb-1"></div>
+          <div class="hero-bg-orb orb-2"></div>
+          <div class="hero-bg-orb orb-3"></div>
+
+          <!-- Floating file icons -->
+          <div class="floating-icons" aria-hidden="true">
+            <div class="float-icon fi-1">📁</div>
+            <div class="float-icon fi-2">📄</div>
+            <div class="float-icon fi-3">✉️</div>
+            <div class="float-icon fi-4">🗂️</div>
+            <div class="float-icon fi-5">📊</div>
+            <div class="float-icon fi-6">🚀</div>
+            <div class="float-icon fi-7">⭐</div>
+            <div class="float-icon fi-8">🎮</div>
           </div>
 
-          <!-- SHARED PLAYER PROFILE & PROGRESS CARD -->
-          <div class="player-command-card">
+          <div class="hero-content">
+            <div class="hero-eyebrow">
+              <span class="eyebrow-dot"></span>
+              THE DUAL-MISSION ARCADE PLATFORM
+              <span class="eyebrow-dot"></span>
+            </div>
+
+            <h1 class="hero-headline">
+              <span class="headline-line-1">YOUR CHORES.</span>
+              <span class="headline-line-2">YOUR GAME.</span>
+              <span class="headline-line-3">YOUR VICTORY.</span>
+            </h1>
+
+            <p class="hero-tagline">
+              Turn boring digital tasks into exciting missions.<br>
+              Play, progress and get things done.
+            </p>
+
+            <div class="hero-cta-group">
+              <button class="btn-hero-primary" id="heroStartBtn">
+                <span class="btn-shine"></span>
+                <span>START YOUR MISSION</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+              <button class="btn-hero-secondary" id="heroExploreBtn">
+                EXPLORE GAMES
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+            </div>
+
+            <!-- Live mini stats -->
+            <div class="hero-stats-bar">
+              <div class="hero-stat">
+                <span class="hero-stat-val" id="heroFilesCount">0</span>
+                <span class="hero-stat-lbl">Files Organised</span>
+              </div>
+              <div class="hero-stat-sep"></div>
+              <div class="hero-stat">
+                <span class="hero-stat-val" id="heroEmailsCount">0</span>
+                <span class="hero-stat-lbl">Emails Processed</span>
+              </div>
+              <div class="hero-stat-sep"></div>
+              <div class="hero-stat">
+                <span class="hero-stat-val">2</span>
+                <span class="hero-stat-lbl">Epic Games</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero visual - CSS animated game scene -->
+          <div class="hero-visual" aria-hidden="true">
+            <div class="hero-screen">
+              <div class="hero-screen-glow"></div>
+              <div class="hero-game-scene">
+                <div class="scene-runner">🏃</div>
+                <div class="scene-files">
+                  <span class="scene-file sf-1">📁</span>
+                  <span class="scene-file sf-2">📄</span>
+                  <span class="scene-file sf-3">🎵</span>
+                </div>
+                <div class="scene-ground"></div>
+                <div class="scene-spaceship">🚀</div>
+                <div class="scene-enemies">
+                  <span class="scene-enemy se-1">✉️</span>
+                  <span class="scene-enemy se-2">📧</span>
+                  <span class="scene-enemy se-3">💌</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PERSONALIZED WELCOME (shown when logged in) ── -->
+        <div class="welcome-banner" id="welcomeBanner" style="display:none;">
+          <div class="welcome-avatar" id="welcomeAvatar">🛸</div>
+          <div class="welcome-text">
+            <span class="welcome-greeting">Welcome back, <strong id="welcomeName">Commander</strong>!</span>
+            <span class="welcome-sub">Your missions await. Current streak: <span id="welcomeStreak">1</span> days 🔥</span>
+          </div>
+        </div>
+
+        <!-- ── PLAYER COMMAND CARD ── -->
+        <div class="dashboard-shell">
+          <div class="player-command-card glass-card" id="gamesAnchor">
             <div class="profile-left">
               <div class="avatar-box">
                 <div class="avatar-icon">🛸</div>
@@ -101,7 +294,6 @@
               </div>
             </div>
 
-            <!-- SHARED METRICS GRID -->
             <div class="profile-metrics-grid">
               <div class="metric-box">
                 <span class="metric-lbl">FILES SORTED</span>
@@ -126,69 +318,108 @@
             </div>
           </div>
 
-          <!-- TWO LARGE INTERACTIVE GAME CARDS -->
-          <div class="game-selection-grid">
+          <!-- ── TWO GAME CARDS ── -->
+          <div class="game-selection-grid" id="gameCardsSection">
 
             <!-- GAME CARD 1: FILE RUNNER -->
-            <div class="game-card" id="cardFileRunner">
-              <div class="game-card-banner">
-                <div class="card-chip">GAME 01 · SYSTEM UTILITY</div>
-                <div class="card-engine-tag">FILE SYSTEM ACCESS API</div>
-              </div>
-              <div class="game-card-visual runner-visual">
-                <div class="visual-badge">60 FPS RUNNER</div>
-                <div class="visual-art">🏃💨 📂 📄 📦</div>
-              </div>
-              <div class="game-card-body">
-                <h2 class="card-game-title">FILE RUNNER</h2>
-                <div class="card-tagline">"Run. Dodge. Collect. Organise."</div>
-                <p class="card-desc">
-                  Jump over and crouch under obstacles while collecting real files from your messy folders. Files are moved into clean category folders on your computer in real time as you play.
-                </p>
-                <div class="card-specs">
-                  <span>⚡ Real-Time File Sorting</span>
-                  <span>🛡️ Zero Overwrite Armor</span>
-                  <span>⌨️ Space/Arrows</span>
+            <div class="game-card premium-card" id="cardFileRunner">
+              <div class="game-card-shimmer"></div>
+              <div class="game-card-inner">
+                <div class="game-card-banner">
+                  <div class="card-chip">GAME 01 · FILE SYSTEM</div>
+                  <div class="card-engine-tag">FILE SYSTEM ACCESS API</div>
                 </div>
-                <button class="btn-primary card-action-btn" id="btnPlayFileRunner">
-                  <span>PLAY FILE RUNNER</span>
-                  <span aria-hidden="true">→</span>
-                </button>
+
+                <div class="game-card-visual runner-visual">
+                  <div class="visual-scene runner-scene">
+                    <div class="vs-character">🏃</div>
+                    <div class="vs-obstacles">
+                      <div class="vs-obs ob-1">📦</div>
+                      <div class="vs-obs ob-2">⚡</div>
+                    </div>
+                    <div class="vs-collectibles">
+                      <div class="vs-col col-1">📁</div>
+                      <div class="vs-col col-2">📄</div>
+                      <div class="vs-col col-3">🎵</div>
+                    </div>
+                    <div class="vs-ground-line"></div>
+                  </div>
+                  <div class="visual-badge">60 FPS RUNNER</div>
+                </div>
+
+                <div class="game-card-body">
+                  <h2 class="card-game-title">FILE RUNNER</h2>
+                  <div class="card-tagline">"Jump. Dodge. Collect. Organise."</div>
+                  <p class="card-desc">
+                    Jump over obstacles and collect real files from your messy folders. QUESTIFY safely organizes them into category folders in real time as you play.
+                  </p>
+                  <div class="card-specs">
+                    <span>⚡ Real-Time File Sorting</span>
+                    <span>🛡️ Zero Overwrite Armor</span>
+                    <span>⌨️ Space / Arrows</span>
+                  </div>
+                  <button class="btn-card-play" id="btnPlayFileRunner">
+                    <span class="btn-play-shine"></span>
+                    <span>PLAY FILE RUNNER</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- GAME CARD 2: INBOX INVADERS -->
-            <div class="game-card" id="cardInboxInvaders">
-              <div class="game-card-banner">
-                <div class="card-chip">GAME 02 · EMAIL TRIAGE</div>
-                <div class="card-engine-tag">RETRO ARCADE SHOOTER</div>
-              </div>
-              <div class="game-card-visual invaders-visual">
-                <div class="visual-badge">ARCADE SPACE SHOOTER</div>
-                <div class="visual-art">👾 ⚡ ✉️ 🚀</div>
-              </div>
-              <div class="game-card-body">
-                <h2 class="card-game-title">INBOX INVADERS</h2>
-                <div class="card-tagline">"Lock. Load. Clean your inbox."</div>
-                <p class="card-desc">
-                  Fight waves of unwanted promotional blasts, newsletters, and spam in an intense space defense game. Each enemy shot corresponds to an email safely batched for archiving.
-                </p>
-                <div class="card-specs">
-                  <span>👾 Boss Battles & Waves</span>
-                  <span>🛡️ Reversible Archiving</span>
-                  <span>⚡ 3-Way Powerups</span>
+            <div class="game-card premium-card" id="cardInboxInvaders">
+              <div class="game-card-shimmer"></div>
+              <div class="game-card-inner">
+                <div class="game-card-banner">
+                  <div class="card-chip">GAME 02 · EMAIL TRIAGE</div>
+                  <div class="card-engine-tag">RETRO ARCADE SHOOTER</div>
                 </div>
-                <button class="btn-primary card-action-btn" id="btnPlayInboxInvaders">
-                  <span>PLAY INBOX INVADERS</span>
-                  <span aria-hidden="true">→</span>
-                </button>
+
+                <div class="game-card-visual invaders-visual">
+                  <div class="visual-scene invaders-scene">
+                    <div class="vs-spaceship">🚀</div>
+                    <div class="vs-laser-beam"></div>
+                    <div class="vs-email-enemies">
+                      <div class="vs-enemy en-1">✉️</div>
+                      <div class="vs-enemy en-2">📧</div>
+                      <div class="vs-enemy en-3">💌</div>
+                      <div class="vs-enemy en-4">📩</div>
+                    </div>
+                    <div class="vs-stars">
+                      <span class="star s1">✦</span>
+                      <span class="star s2">✦</span>
+                      <span class="star s3">·</span>
+                      <span class="star s4">✦</span>
+                    </div>
+                  </div>
+                  <div class="visual-badge">ARCADE SPACE SHOOTER</div>
+                </div>
+
+                <div class="game-card-body">
+                  <h2 class="card-game-title">INBOX INVADERS</h2>
+                  <div class="card-tagline">"Defend your inbox. Defeat the clutter."</div>
+                  <p class="card-desc">
+                    Fight waves of unwanted emails in an intense space defense game. Each enemy shot corresponds to an email safely batched for archiving.
+                  </p>
+                  <div class="card-specs">
+                    <span>👾 Boss Battles &amp; Waves</span>
+                    <span>🛡️ Reversible Archiving</span>
+                    <span>⚡ 3-Way Powerups</span>
+                  </div>
+                  <button class="btn-card-play" id="btnPlayInboxInvaders">
+                    <span class="btn-play-shine"></span>
+                    <span>PLAY INBOX INVADERS</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </div>
               </div>
             </div>
 
           </div>
 
-          <!-- RECENT MISSION TELEMETRY FEED -->
-          <div class="recent-missions-panel">
+          <!-- ── RECENT MISSION LOG ── -->
+          <div class="recent-missions-panel glass-card">
             <div class="panel-header">
               <h3>RECENT MISSION LOG</h3>
               <span class="panel-sub" id="lastActiveDate">System Online</span>
@@ -197,17 +428,125 @@
               <div class="log-empty-state">No missions logged yet. Choose a game above to start your first cleanup mission!</div>
             </div>
           </div>
-
         </div>
+
+        <!-- ── HOW IT WORKS ── -->
+        <div class="how-section">
+          <div class="how-inner">
+            <div class="section-label">HOW IT WORKS</div>
+            <h2 class="section-heading">Three steps to productivity glory</h2>
+            <div class="how-steps">
+              <div class="how-step">
+                <div class="how-step-num">01</div>
+                <div class="how-step-icon">🎮</div>
+                <h3>Pick Your Mission</h3>
+                <p>Choose File Runner to organise files or Inbox Invaders to triage your emails. Both connect to real tasks.</p>
+              </div>
+              <div class="how-step-arrow">→</div>
+              <div class="how-step">
+                <div class="how-step-num">02</div>
+                <div class="how-step-icon">⚡</div>
+                <h3>Play the Game</h3>
+                <p>Control your character or spaceship. Jump, dodge, collect and blast through your digital clutter.</p>
+              </div>
+              <div class="how-step-arrow">→</div>
+              <div class="how-step">
+                <div class="how-step-num">03</div>
+                <div class="how-step-icon">🏆</div>
+                <h3>Get Things Done</h3>
+                <p>Files are moved on your computer and emails are triaged — for real. Earn XP and level up your Commander profile.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CREATOR SECTION ── -->
+        <!-- ✏️ CREATOR: Change the name "VANSHIKA" on the line below to your name -->
+        <div class="creator-section" id="creatorSection">
+          <div class="creator-inner">
+            <div class="creator-card glass-card">
+              <div class="creator-logo">
+                <div class="creator-logo-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                  </svg>
+                </div>
+                <span>QUESTIFY</span>
+              </div>
+              <div class="creator-quote">CRAFTED WITH PASSION.</div>
+              <div class="creator-name-block">
+                <span class="creator-made-by">Created by</span>
+                <!-- ✏️ CHANGE YOUR NAME BELOW (only one place) -->
+                <span class="creator-name" id="creatorName">VANSHIKA</span>
+              </div>
+              <p class="creator-desc">
+                Built at a hackathon to prove that productivity and play can coexist. 
+                Inspired by the idea that your most boring digital chores deserve to be epic.
+              </p>
+              <div class="creator-badges">
+                <span class="creator-badge">🏆 Hackathon Project</span>
+                <span class="creator-badge">⚡ Pure Vanilla JS</span>
+                <span class="creator-badge">🛸 Two Full Games</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── FOOTER ── -->
+        <footer class="site-footer">
+          <div class="footer-top">
+            <div class="footer-brand">
+              <div class="footer-logo">
+                <div class="footer-logo-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                  </svg>
+                </div>
+                <span class="footer-logo-text">QUESTIFY</span>
+              </div>
+              <p class="footer-tagline">Boring Tasks. Epic Missions.</p>
+            </div>
+
+            <div class="footer-links">
+              <div class="footer-link-group">
+                <h4>Platform</h4>
+                <button class="footer-link" id="footerAboutBtn">About QUESTIFY</button>
+                <button class="footer-link" id="footerHowBtn">How to Play</button>
+                <button class="footer-link" id="footerBountiesLink">Bounties</button>
+              </div>
+              <div class="footer-link-group">
+                <h4>Games</h4>
+                <button class="footer-link" id="footerFileRunnerLink">File Runner</button>
+                <button class="footer-link" id="footerInboxLink">Inbox Invaders</button>
+                <button class="footer-link" id="footerHangarLink">Hangar</button>
+              </div>
+              <div class="footer-link-group">
+                <h4>Info</h4>
+                <button class="footer-link" id="footerPrivacyBtn">Privacy Policy</button>
+                <button class="footer-link" id="footerCreatorBtn">Creator Credits</button>
+                <button class="footer-link" id="footerContactBtn">Contact</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <span>© 2026 QUESTIFY · Dual-Mission Productivity Arcade · Pure Vanilla Web Technologies</span>
+            <span class="footer-tech">100% Client-Side · Zero Cloud Uploads · Reversible Actions</span>
+          </div>
+        </footer>
+
       </section>
 
-      <!-- ================================================================= -->
-      <!-- VIEW 2: GAME ONE — FILE RUNNER                                    -->
-      <!-- ================================================================= -->
+      <!-- ============================================================ -->
+      <!-- VIEW 2: FILE RUNNER GAME                                      -->
+      <!-- ============================================================ -->
       <section id="fileRunnerView" class="view-screen">
         <div class="game-module-shell">
 
-          <!-- TOP GAME HEADER WITH HOME BUTTON -->
           <div class="module-top-bar">
             <button class="btn-home-back back-to-universe-btn" aria-label="Return to Dashboard">
               <span aria-hidden="true">←</span>
@@ -220,9 +559,9 @@
             <div class="module-status-chip" id="runnerStatusChip">READY FOR SECTOR</div>
           </div>
 
-          <!-- SUB-STAGE 2A: SETUP & FOLDER SELECTION LAUNCHPAD -->
+          <!-- SUB-STAGE 2A: SETUP -->
           <div id="fileRunnerSetupStage" class="module-substage active">
-            <div class="screen-card">
+            <div class="screen-card glass-card">
               <div class="intro-spotlight">
                 <span class="eyebrow">SECTOR SELECTION</span>
                 <h2 class="title-hero">Select Sector Directory to Clean</h2>
@@ -246,7 +585,6 @@
                 </div>
               </div>
 
-              <!-- SCANNED MANIFEST PREVIEW -->
               <div id="runnerScanPreviewBox" class="scan-preview-box" style="display: none;">
                 <div class="preview-header">
                   <div class="preview-meta">
@@ -275,13 +613,12 @@
                 <div class="launch-actions">
                   <button id="runnerCancelScanBtn" class="btn-secondary">Cancel</button>
                   <button id="runnerStartMissionBtn" class="btn-primary btn-large">
-                    <span>Engage File Runner & Sort</span>
+                    <span>Engage File Runner &amp; Sort</span>
                     <span aria-hidden="true">→</span>
                   </button>
                 </div>
               </div>
 
-              <!-- SIMULATION MODE TRIGGER -->
               <div class="practice-prompt">
                 <span>Want to test the game mechanics first?</span>
                 <button id="runnerPracticeBtn" class="btn-text">Launch Simulation Run →</button>
@@ -289,10 +626,9 @@
             </div>
           </div>
 
-          <!-- SUB-STAGE 2B: ACTIVE GAMEPLAY (CANVAS RUNNER) -->
+          <!-- SUB-STAGE 2B: ACTIVE GAMEPLAY -->
           <div id="fileRunnerPlayStage" class="module-substage">
             <div class="game-screen-wrapper">
-              <!-- HUD BAR -->
               <div class="game-hud">
                 <div class="hud-item">
                   <span class="hud-label">Files Sorted:</span>
@@ -317,13 +653,11 @@
                 </div>
               </div>
 
-              <!-- CANVAS CONTAINER -->
               <div class="canvas-container" id="runnerCanvasContainer">
                 <canvas id="runnerCanvas" width="840" height="340" tabindex="0" aria-label="Courier UFO runner game"></canvas>
                 <div id="toastOverlay" class="toast-overlay"></div>
               </div>
 
-              <!-- CONTROLS & HINT BAR -->
               <div class="game-controls-hint">
                 <div class="game-controls">
                   <div class="control-copy">
@@ -345,9 +679,9 @@
             </div>
           </div>
 
-          <!-- SUB-STAGE 2C: RESULTS & ACTION LOG -->
+          <!-- SUB-STAGE 2C: RESULTS -->
           <div id="fileRunnerResultsStage" class="module-substage">
-            <div class="screen-card results-card">
+            <div class="screen-card results-card glass-card">
               <div class="results-header">
                 <div class="results-badge">FILE MISSION COMPLETE</div>
                 <h2 class="title-hero">Sector Successfully Decontaminated</h2>
@@ -412,13 +746,12 @@
         </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- VIEW 3: GAME TWO — INBOX INVADERS                                 -->
-      <!-- ================================================================= -->
+      <!-- ============================================================ -->
+      <!-- VIEW 3: INBOX INVADERS GAME                                   -->
+      <!-- ============================================================ -->
       <section id="inboxInvadersView" class="view-screen">
         <div class="game-module-shell">
 
-          <!-- TOP BAR WITH HOME BUTTON -->
           <div class="module-top-bar">
             <button class="btn-home-back back-to-universe-btn" aria-label="Return to Dashboard">
               <span aria-hidden="true">←</span>
@@ -431,9 +764,9 @@
             <div class="module-status-chip" id="invadersStatusChip">DEFENSE GRID READY</div>
           </div>
 
-          <!-- SUB-STAGE 3A: INBOX PREPARATION & AUTHORIZATION -->
+          <!-- SUB-STAGE 3A: SETUP -->
           <div id="invadersSetupStage" class="module-substage active">
-            <div class="screen-card invaders-setup-card">
+            <div class="screen-card invaders-setup-card glass-card">
               <div class="intro-spotlight">
                 <span class="eyebrow">INBOX DEFENSE PROTOCOL</span>
                 <h2 class="title-hero">Defend Your Inbox From The Invasion</h2>
@@ -442,7 +775,6 @@
                 </p>
               </div>
 
-              <!-- INBOX SOURCE SELECTOR TABS -->
               <div class="inbox-source-tabs">
                 <button class="inbox-tab-btn active" id="tabDemoInbox">
                   <span class="tab-icon">🎮</span>
@@ -456,7 +788,6 @@
                 </button>
               </div>
 
-              <!-- DEMO INBOX PREVIEW CONTENT -->
               <div id="demoInboxContent" class="inbox-tab-content active">
                 <div class="manifest-card">
                   <div class="manifest-header-row">
@@ -464,7 +795,6 @@
                     <span class="manifest-counter">25 Inbound Transmissions</span>
                   </div>
 
-                  <!-- ENEMY TARGET CATEGORY BADGES -->
                   <div class="enemy-legend-grid">
                     <div class="enemy-legend-item">
                       <span class="enemy-glyph promo-glyph">👾</span>
@@ -525,7 +855,6 @@
                 </div>
               </div>
 
-              <!-- LIVE OAUTH CONNECT CONTENT -->
               <div id="oauthInboxContent" class="inbox-tab-content">
                 <div class="manifest-card">
                   <div class="oauth-info-block">
@@ -555,11 +884,10 @@
             </div>
           </div>
 
-          <!-- SUB-STAGE 3B: ACTIVE GAMEPLAY (CANVAS SHOOTER) -->
+          <!-- SUB-STAGE 3B: ACTIVE GAMEPLAY -->
           <div id="invadersPlayStage" class="module-substage">
             <div class="invaders-arena-wrapper">
 
-              <!-- SHOOTER HUD -->
               <div class="invaders-hud">
                 <div class="invaders-hud-left">
                   <div class="hud-item">
@@ -576,7 +904,6 @@
                   </div>
                 </div>
 
-                <!-- BOSS HEALTH BAR (Visible during boss waves) -->
                 <div class="boss-health-bar-container" id="bossHealthContainer" style="display: none;">
                   <div class="boss-name">BOSS: SPAM BOT MATRIX</div>
                   <div class="boss-track">
@@ -597,7 +924,6 @@
                 </div>
               </div>
 
-              <!-- SHOOTER CANVAS -->
               <div class="canvas-container shooter-container" id="shooterContainer">
                 <canvas id="invadersCanvas" width="840" height="480" tabindex="0" aria-label="Inbox Invaders space shooter game"></canvas>
                 <div id="invadersOverlayToast" class="invaders-toast-box"></div>
@@ -613,18 +939,16 @@
                 </div>
               </div>
 
-              <!-- SHOOTER CONTROLS HINT -->
               <div class="game-controls-hint">
                 <div class="game-controls">
                   <div class="control-copy">
-                    <span><strong>Move:</strong> Arrow Keys / A & D</span>
+                    <span><strong>Move:</strong> Arrow Keys / A &amp; D</span>
                     <span class="ctrl-sep">·</span>
                     <span><strong>Fire Lasers:</strong> SPACEBAR</span>
                     <span class="ctrl-sep">·</span>
                     <span><strong>Shield / Dodge:</strong> Shift</span>
                   </div>
 
-                  <!-- TOUCH CONTROLS FOR LAPTOP TOUCH SCREENS / MOBILE -->
                   <div class="touch-controls">
                     <button type="button" id="shooterLeftBtn" class="touch-control">◀ Left</button>
                     <button type="button" id="shooterFireBtn" class="touch-control fire-control">FIRE ⚡</button>
@@ -640,9 +964,9 @@
             </div>
           </div>
 
-          <!-- SUB-STAGE 3C: RESULTS & TRIAGE APPROVAL -->
+          <!-- SUB-STAGE 3C: RESULTS -->
           <div id="invadersResultsStage" class="module-substage">
-            <div class="screen-card results-card">
+            <div class="screen-card results-card glass-card">
               <div class="results-header">
                 <div class="results-badge" id="invadersResultBadge">INBOX DEFENSE SUCCESSFUL</div>
                 <h2 class="title-hero" id="invadersResultHeading">Fleet Neutralized // Triage Review</h2>
@@ -651,7 +975,6 @@
                 </p>
               </div>
 
-              <!-- METRICS SCORECARD -->
               <div class="results-grid">
                 <div class="result-metric">
                   <span class="metric-title">Emails Neutralized</span>
@@ -675,7 +998,6 @@
                 </div>
               </div>
 
-              <!-- ACTION PROPOSAL TABLE -->
               <div class="actions-section">
                 <div class="actions-header">
                   <h3>Triage Action Manifest (Pending Confirmation)</h3>
@@ -696,10 +1018,9 @@
                 </div>
               </div>
 
-              <!-- CONFIRMATION ACTIONS -->
               <div class="results-actions">
                 <button id="btnConfirmEmailTriage" class="btn-primary btn-large">
-                  <span>✓ Confirm & Apply Email Triage</span>
+                  <span>✓ Confirm &amp; Apply Email Triage</span>
                 </button>
                 <button id="btnPlayAgainInvaders" class="btn-secondary">Play Another Wave</button>
                 <button class="btn-secondary back-to-universe-btn">Return to Dashboard</button>
@@ -710,21 +1031,20 @@
         </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- VIEW 4: HANGAR — PROFILE & SKINS                                  -->
-      <!-- ================================================================= -->
+      <!-- ============================================================ -->
+      <!-- VIEW 4: HANGAR                                                -->
+      <!-- ============================================================ -->
       <section id="hangarView" class="view-screen">
-        <div class="screen-card hangar-card">
+        <div class="screen-card hangar-card glass-card">
           <div class="intro-spotlight">
             <span class="eyebrow">COMMANDER HEADQUARTERS</span>
-            <h2 class="title-hero">Fleet Hangar & Customization</h2>
+            <h2 class="title-hero">Fleet Hangar &amp; Customization</h2>
             <p class="subtitle-hero">
               Spend your earned arcade coins to equip new vessels and inspect your career progression.
             </p>
           </div>
 
           <div class="hangar-grid">
-            <!-- SHIP SKIN 1 -->
             <div class="hangar-item-card active-skin" id="skinSaucer">
               <div class="hangar-item-preview">🛸</div>
               <div class="hangar-item-title">Standard Courier Drone</div>
@@ -732,7 +1052,6 @@
               <button class="btn-secondary btn-skin-select" disabled>EQUIPPED</button>
             </div>
 
-            <!-- SHIP SKIN 2 -->
             <div class="hangar-item-card" id="skinInterceptor">
               <div class="hangar-item-preview">🚀</div>
               <div class="hangar-item-title">Viper Interceptor</div>
@@ -740,7 +1059,6 @@
               <button class="btn-primary btn-skin-select" id="btnUnlockInterceptor">EQUIP VESSEL</button>
             </div>
 
-            <!-- SHIP SKIN 3 -->
             <div class="hangar-item-card" id="skinStealth">
               <div class="hangar-item-preview">🛰️</div>
               <div class="hangar-item-title">Stealth Recon Probe</div>
@@ -755,14 +1073,14 @@
         </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- VIEW 5: BOUNTIES & ACHIEVEMENTS                                   -->
-      <!-- ================================================================= -->
+      <!-- ============================================================ -->
+      <!-- VIEW 5: BOUNTIES & ACHIEVEMENTS                               -->
+      <!-- ============================================================ -->
       <section id="bountiesView" class="view-screen">
-        <div class="screen-card">
+        <div class="screen-card glass-card">
           <div class="intro-spotlight">
             <span class="eyebrow">CAREER ACHIEVEMENTS</span>
-            <h2 class="title-hero">Fleet Bounties & Medals</h2>
+            <h2 class="title-hero">Fleet Bounties &amp; Medals</h2>
             <p class="subtitle-hero">Complete cross-mission objectives in File Runner and Inbox Invaders to earn XP and coins.</p>
           </div>
 
@@ -776,19 +1094,22 @@
 
     </main>
 
-    <!-- GLOBAL FOOTER -->
-    <footer class="app-footer">
-      <div class="footer-left">
-        <strong>QUESTIFY</strong> — Dual-Mission Productivity Arcade. Pure Vanilla Web Technologies.
-      </div>
-      <div class="footer-right">
-        <span>100% Client-Side · Zero Cloud Uploads · Reversible Actions</span>
-      </div>
-    </footer>
-
   </div>
 
-  <!-- SCRIPT -->
+  <!-- Info / Privacy / About modals (lightweight inline) -->
+  <div id="infoModal" class="info-modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Information">
+    <div class="info-modal-card glass-card">
+      <button class="info-modal-close" id="infoModalClose" aria-label="Close">✕</button>
+      <h3 id="infoModalTitle">About QUESTIFY</h3>
+      <div id="infoModalBody" class="info-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN — safe to include; uses public anon key only -->
+  <!-- See script.js SUPABASE SETUP section for configuration instructions -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Main Game Script -->
   <script src="script.js"></script>
 </body>
 </html>
