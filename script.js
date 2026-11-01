@@ -2093,6 +2093,30 @@
             if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         });
+
+        const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
+        if (sidebarSettingsBtn) {
+          sidebarSettingsBtn.addEventListener('click', () => {
+            this.showInfoModal(
+              'PLATFORM SETTINGS & GUIDELINES',
+              `<p><strong>Platform Architecture:</strong> QUESTIFY runs 100% in-browser on deterministic Web APIs with zero external tracking.</p>
+               <p><strong>File System Security:</strong> Non-destructive directory operations with automated renaming and zero overwrite safety.</p>
+               <p><strong>Email Privacy:</strong> Reversible label management. Passwords and credentials are never stored or exposed.</p>
+               <p><strong>Synthesizer Audio:</strong> Procedural sound synthesis via Web Audio API. Audio output can be toggled from the header bar.</p>`
+            );
+          });
+        }
+
+        const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+        if (sidebarLogoutBtn) {
+          sidebarLogoutBtn.addEventListener('click', () => {
+            if (this.currentUser) {
+              this.handleSignOut();
+            } else {
+              this.openAuthModal();
+            }
+          });
+        }
       }
 
       // All Home/Back Buttons inside games
@@ -2192,6 +2216,58 @@
             this.closeAuthModal();
           }
         });
+      }
+
+      // Exact Reference Navigation & Scroll Hooks
+      const creatorGetStartedBtn = document.getElementById('creatorGetStartedBtn');
+      if (creatorGetStartedBtn) {
+        creatorGetStartedBtn.addEventListener('click', () => {
+          const target = document.getElementById('gameCardsSection') || document.getElementById('gamesAnchor');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const challengePlayNowBtn = document.getElementById('challengePlayNowBtn');
+      if (challengePlayNowBtn) {
+        challengePlayNowBtn.addEventListener('click', () => {
+          const target = document.getElementById('gameCardsSection');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const viewAllGamesBtn = document.getElementById('viewAllGamesBtn');
+      if (viewAllGamesBtn) {
+        viewAllGamesBtn.addEventListener('click', () => {
+          const target = document.getElementById('gameCardsSection');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const heroScrollIndicator = document.getElementById('heroScrollIndicator');
+      if (heroScrollIndicator) {
+        heroScrollIndicator.addEventListener('click', () => {
+          const target = document.getElementById('gamesAnchor');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const navGamesBtn = document.getElementById('navGamesBtn');
+      if (navGamesBtn) {
+        navGamesBtn.addEventListener('click', () => {
+          this.switchView('dashboard');
+          const target = document.getElementById('gameCardsSection');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const navHowBtn = document.getElementById('navHowBtn');
+      if (navHowBtn && this.footerHowBtn) {
+        navHowBtn.addEventListener('click', () => this.footerHowBtn.click());
+      }
+
+      const navAboutBtn = document.getElementById('navAboutBtn');
+      if (navAboutBtn && this.footerAboutBtn) {
+        navAboutBtn.addEventListener('click', () => this.footerAboutBtn.click());
       }
 
       // Footer Links & Info Modals
@@ -2420,26 +2496,33 @@
       this.miniCoinsVal.textContent = this.profile.state.coins;
       this.miniStreakVal.textContent = `${this.profile.state.streakDays}D`;
 
-      this.profileLvlTag.textContent = `LVL ${rank.level}`;
-      this.profileRankTitle.textContent = rank.title;
+      this.profileLvlTag.textContent = `Level ${rank.level}`;
+      if (this.profileRankTitle) this.profileRankTitle.textContent = rank.title;
       this.profileXpText.textContent = this.profile.state.xp;
       this.profileNextXpText.textContent = rank.maxXp;
 
       const range = rank.maxXp - rank.minXp;
       const progress = this.profile.state.xp - rank.minXp;
       const pct = Math.min(100, Math.max(0, Math.round((progress / range) * 100)));
-      this.profileXpBar.style.width = `${pct}%`;
+      if (this.profileXpBar) this.profileXpBar.style.width = `${pct}%`;
+
+      const sidebarLvlTag = document.getElementById('sidebarLvlTag');
+      if (sidebarLvlTag) sidebarLvlTag.textContent = `Level ${rank.level}`;
+      const sidebarXpVal = document.getElementById('sidebarXpVal');
+      if (sidebarXpVal) sidebarXpVal.textContent = `${this.profile.state.xp} / ${rank.maxXp} XP`;
+      const sidebarXpBar = document.getElementById('sidebarXpBar');
+      if (sidebarXpBar) sidebarXpBar.style.width = `${pct}%`;
 
       this.metricTotalFiles.textContent = this.profile.state.totalFilesOrganized;
       this.metricTotalEmails.textContent = this.profile.state.totalEmailsProcessed;
       this.metricTotalCoins.textContent = this.profile.state.coins;
-      this.metricProductivityScore.textContent = this.profile.getProductivityScore();
+      this.metricProductivityScore.textContent = this.profile.state.streakDays > 0 ? `${this.profile.state.streakDays} Day${this.profile.state.streakDays > 1 ? 's' : ''}` : '0 Days';
 
       if (this.heroFilesCount) {
-        this.heroFilesCount.textContent = this.profile.state.totalFilesOrganized;
+        this.heroFilesCount.textContent = this.profile.state.totalFilesOrganized > 0 ? this.profile.state.totalFilesOrganized : '10K+';
       }
       if (this.heroEmailsCount) {
-        this.heroEmailsCount.textContent = this.profile.state.totalEmailsProcessed;
+        this.heroEmailsCount.textContent = this.profile.state.totalEmailsProcessed > 0 ? this.profile.state.totalEmailsProcessed : '100%';
       }
     }
 
